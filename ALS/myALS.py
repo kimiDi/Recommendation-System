@@ -6,20 +6,20 @@ from sklearn.linear_model import LinearRegression
 from numpy.linalg import solve
 %matplotlib inline
 
-link = pd.read_csv(‘ml-latest-small/links.csv’)
+link = pd.read_csv('ml-latest-small/links.csv')
 link.head()
 
-movie = pd.read_csv(‘ml-latest-small/movies.csv’)
+movie = pd.read_csv('ml-latest-small/movies.csv')
 movie.head()
 
-rate = pd.read_csv(‘ml-latest-small/ratings.csv’)
+rate = pd.read_csv('ml-latest-small/ratings.csv')
 rate.head()
 
-tag = pd.read_csv(‘ml-latest-small/tags.csv’)
+tag = pd.read_csv('ml-latest-small/tags.csv')
 tag.head()
 
 # rating matrix building
-table = pd.pivot_table(rate, index = ‘userId’, columns = ‘movieId’, values = ‘rating’)
+table = pd.pivot_table(rate, index = 'userId', columns = 'movieId', values = 'rating')
 rating = table.fillna(value = 0).as_matrix()
 rating
 
@@ -41,8 +41,8 @@ def myALS(lambda_, n_factors, ratings, n_iter):
 		if ii % 5 == 0:
 			new_mse = get_mse(ratings, X, Y)
 			mse.append(new_mse)
-			print(‘{}th iteration’.format(ii))
-			print(‘Train mse:’ + str(new_mse))
+			print('{}th iteration'.format(ii))
+			print('Train mse:' + str(new_mse))
 	ratings_hat = np.dot(X, Y)
 	plt.plot(mse)
 
@@ -64,13 +64,13 @@ class ExplicitMF():
 		self._v = verbose
 
 	def als_step(self, latent_vectors, fixed_vecs, ratings, _lambda, type = ‘user’):
-		if type == ‘user’:
+		if type == 'user':
 			YTY = fixed_vecs.T.dot(fixed_vecs)
 			lambdaI = np.eye(YTY.shape[0]) * _lambda
 			
 			for u in xrange(latent_vectors.shape[0]):
 				latent_vectors[u, :] = solve((YTY + lambdaI), rating[u, :].dot(fixed_vecs))
-		elif type == ‘item’:
+		elif type == 'item':
 			XTX = fixed_vecs.T.dot(fixed_vecs)
 			lambdaI = np.eye(XTX.shape[0]) * _lambda
 			for i in xrange(latent_vectors.shape[0]):
@@ -87,9 +87,9 @@ class ExplicitMF():
 		ctr = 1
 		while ctr <= n_iter:
 			if ctr % 10 == 0 and self._v:
-				print(‘\tcurrent iteration:{}’.format(ctr))
-			self.user_vecs = self.als_step(self.user_vecs, self.item_vecs, self.ratings, self.user_reg, type = ‘user’)
-			self.item_vecs = self.als_step(self.item_vecs, self.user_vecs, self.ratings, self.user_reg, type = ‘item’)
+				print('\tcurrent iteration:{}'.format(ctr))
+			self.user_vecs = self.als_step(self.user_vecs, self.item_vecs, self.ratings, self.user_reg, type = 'user')
+			self.item_vecs = self.als_step(self.item_vecs, self.user_vecs, self.ratings, self.user_reg, type = 'item')
 			ctr += 1
 	
 	def predict_all(self):
@@ -111,7 +111,7 @@ class ExplicitMF():
 		iter_diff = 0
 		for (i, n_iter) in enumerate(iter_array):
 			if self._v:
-				print(‘Iterations:{}’.format(n_iter))
+				print('Iterations:{}'.format(n_iter))
 			if i == 0:
 				self.train(n_iter - iter_diff)
 			else:
@@ -122,7 +122,7 @@ class ExplicitMF():
 			self.train_mse += [self.get_mse(predictins, self.ratings)]
 			
 			if self._v:
-				print(‘Train mse:’ + str(self.train_mse[-1]))
+				print('Train mse:' + str(self.train_mse[-1]))
 			iter_diff = n_iter
 		plt.plot(self.train_mse)
 	
